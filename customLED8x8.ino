@@ -109,60 +109,56 @@ void setup() {
   Serial.begin(9600);
 }
 
-int startIndex = 0;
+int scrollDelay = 50;
 
+int startIndex = 0;
+char message[] = "A";
 void loop() {
+  int messageLength = strlen(message);
+  if (startIndex >= messageLength){
+    startIndex = 0;
+  }
   // each loop begins with a character in the middle and ends once it is off screen
   // get the character
-  // get the next character too
-  //loop characterByte from 0 to 7 (represent rows )
+  char currChar= message[startIndex];
+  char nextChar= message[startIndex+1];
+  if (startIndex+1 ==messageLength){
+    nextChar = "B";
+  }
+  
+  displayCharacter(currChar, nextChar);
+  startIndex++;
+}
+// takes in a character, displays it, ends when it's done displaying
+void displayCharacter(char currChar,char nextChar) {
+   //loop characterByte from 0 to 7 (represent rows )
+  int indexCurrChar = currChar - 32; // Gets the index
+  int indexNextChar = nextChar-32;
+  for (int bitShift = 0; bitShift < 8; bitShift++) {
+    printCharFromByteArrs(chars[indexCurrChar],chars[indexNextChar],bitShift);
+    delay(scrollDelay);
     // loop bitshiftValue from 0 to 7
       // bitshift first to the left by X
       // bitshift second to the left by 8-x
       // combine them into new byte via or
       //display this on the line
+  }
   
-  
-  
-  //char charToPrint[] = "A";
-  //String possibleChars = "0010011000110010";
-  //String visibleChars = possibleChars.substring(startIndex, startIndex+8);
-  byte b1 = B00110000;
-  byte b2 = B00000010;
-  byte c = b1 | b2;
-
-  lc.setRow(0, 1, c);
-//  for ( int i = 0; i < strlen(charToPrint); i++) {
-//    printChar(charToPrint[i], 0);
-//    delay(1000);
-//    printChar(charToPrint[i], 1);
-//    delay(1000);
-//    printChar(charToPrint[i], 2);
-//
-//    delay(500);
-//  }
- 
-  startIndex++;
-  delay(500);
 }
 
-void printChar(char singleCharacter, int scrollAmount) {
-  int indexToPrint = singleCharacter - 32;
-  printByte(chars[indexToPrint], scrollAmount);
-}
-
-void printByte(byte character [], int scrollAmount)
+void printCharFromByteArrs(byte character [], byte nextChar [], int scrollAmount)
 {
   int i = 0;
-  byte line[8] = { 0x30, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+ // byte line[8] = { 0x30, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
   for (i = 0; i < 8; i++)
   {
-
-    //Serial.println(line[i]);
-    lc.setRow(0, i, B00001000);
+    byte characterByte = character[i] << scrollAmount;
+    byte nextCharByte = nextChar[i] >> (8-scrollAmount);
+    byte byteToPrint= characterByte | nextCharByte;
+    lc.setRow(0, i, byteToPrint);
   }
-  byte b = 0x30;
-  String toPrint = String(b, 2); // outputs a string
+//  byte b = 0x30;
+//  String toPrint = String(b, 2); // outputs a string
 //  char binaryAsCharArr[] = "";
 //  toPrint.toCharArray(binaryAsCharArr);  //. converts the string to character array
 //  toPrint = padToEightChars(toPrint);
