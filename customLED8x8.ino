@@ -111,23 +111,39 @@ void setup() {
 
 int scrollDelay = 50;
 
-int startIndex = 0;
-char message[] = "A";
+char blankChar[] = " ";
 void loop() {
+
+  char messages[8][50] = { // max string size is 100
+    "Have we taken the dogs out recently?",
+    "I think you're pretty neato",
+    "You gotta be pretty bored",
+    "Hope you are having a good day!",
+    "Thanks for letting me keep this up here!",
+  };
+
+  int numMessages = 5;
+  int randomIndex = random(numMessages);
+  displayMessage(messages[randomIndex]);
+   
+}
+
+void displayMessage(char message[]) {
+  int startIndex = 0;
   int messageLength = strlen(message);
-  if (startIndex >= messageLength){
-    startIndex = 0;
+  displayCharacter(blankChar[0], message[0]); // Scroll at beginning
+  for (int index =0;index<messageLength; index++){
+    // each loop begins with a character in the middle and ends once it is off screen
+    // get the character
+    char currChar= message[index];
+    char nextChar;
+    if (index+1 == messageLength) {
+      nextChar = blankChar[0]; // Not sure why we have to have a char array here but we do.
+    }else {
+      nextChar= message[index+1];
+    }
+    displayCharacter(currChar, nextChar);
   }
-  // each loop begins with a character in the middle and ends once it is off screen
-  // get the character
-  char currChar= message[startIndex];
-  char nextChar= message[startIndex+1];
-  if (startIndex+1 ==messageLength){
-    nextChar = "B";
-  }
-  
-  displayCharacter(currChar, nextChar);
-  startIndex++;
 }
 // takes in a character, displays it, ends when it's done displaying
 void displayCharacter(char currChar,char nextChar) {
@@ -137,11 +153,6 @@ void displayCharacter(char currChar,char nextChar) {
   for (int bitShift = 0; bitShift < 8; bitShift++) {
     printCharFromByteArrs(chars[indexCurrChar],chars[indexNextChar],bitShift);
     delay(scrollDelay);
-    // loop bitshiftValue from 0 to 7
-      // bitshift first to the left by X
-      // bitshift second to the left by 8-x
-      // combine them into new byte via or
-      //display this on the line
   }
   
 }
@@ -157,26 +168,8 @@ void printCharFromByteArrs(byte character [], byte nextChar [], int scrollAmount
     byte byteToPrint= characterByte | nextCharByte;
     lc.setRow(0, i, byteToPrint);
   }
-//  byte b = 0x30;
-//  String toPrint = String(b, 2); // outputs a string
-//  char binaryAsCharArr[] = "";
-//  toPrint.toCharArray(binaryAsCharArr);  //. converts the string to character array
-//  toPrint = padToEightChars(toPrint);
-//  Serial.println(toPrint);
-}
 
-//char padToEightChars(char[] charArrToPad) {
-//  int length = strlen(input);
-//  Serial.println("SIZE OF ARRAY IS");
-//  Serial.println(sizeof(charArrToPad));
-//  //  for (int i=length; i<8; i++) {
-//  //    input = "0"+input;
-//  //  }
-//
-//  return input;
-//
-//
-//}
+}
 
 
 
