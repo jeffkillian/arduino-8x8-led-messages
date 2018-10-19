@@ -6,6 +6,25 @@ int CLK = 10;
 
 
 //each byte in this is a base 16 number up to 255.
+// How this translates into LEDs:
+  // Each object of 8 is a letter
+  // Take for example the letter "A", which looks like this on an LED:
+  // 00110000
+  // 01111000
+  // 11001100
+  // 11001100
+  // 11111100
+  // 11001100
+  // 11001100
+  // 00000000
+
+  // It looks like this, with each entry corresponding to a row
+  // { 0x30, 0x78, 0xCC, 0xCC, 0xFC, 0xCC, 0xCC, 0x00}
+  // Let's take a look at the first row: 00011000
+  // That is taken from the first element, 0x30
+  // convert 0x30 from base 16 (Hex) to binary, and you get 00110000, which is the first row of the above character
+  // continue to do so for the rest of the rows.
+  
 byte chars[][8] = {
   { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},  // char 32: space
   { 0x18, 0x3C, 0x3C, 0x18, 0x18, 0x00, 0x18, 0x00},
@@ -109,9 +128,11 @@ void setup() {
   Serial.begin(9600);
 }
 
-int scrollDelay = 50;
+int scrollDelay = 50; // How long to delay between each bitshift. The lower the number, the faster it scrolls.
 
 char blankChar[] = " ";
+
+// Scrolls a random message each loop
 void loop() {
 
   char messages[8][50] = { // max string size is 100
@@ -131,9 +152,9 @@ void loop() {
 void displayMessage(char message[]) {
   int startIndex = 0;
   int messageLength = strlen(message);
-  displayCharacter(blankChar[0], message[0]); // Scroll at beginning
+ // displayCharacter(blankChar[0], message[0]); // Scroll at beginning
   for (int index =0;index<messageLength; index++){
-    // each loop begins with a character in the middle and ends once it is off screen
+    // each loop begins with a character in the middle of the display and ends once it is off screen
     // get the character
     char currChar= message[index];
     char nextChar;
@@ -145,6 +166,7 @@ void displayMessage(char message[]) {
     displayCharacter(currChar, nextChar);
   }
 }
+
 // takes in a character, displays it, ends when it's done displaying
 void displayCharacter(char currChar,char nextChar) {
    //loop characterByte from 0 to 7 (represent rows )
@@ -157,6 +179,7 @@ void displayCharacter(char currChar,char nextChar) {
   
 }
 
+// We must bitshift in here to get the scrolling working.
 void printCharFromByteArrs(byte character [], byte nextChar [], int scrollAmount)
 {
   int i = 0;
